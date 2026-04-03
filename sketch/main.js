@@ -51,9 +51,9 @@ function setup() {
 
 // 화면 크기에 따른 반지름 계산 함수
 function calculateRadii() {
-  secondR = width * 0.02; // 화면 너비의 3%
-  minuteR = width * 0.028; // 화면 너비의 3.5%
-  hourR = width * 0.036; // 화면 너비의 5%
+  secondR = width * 0.02; 
+  minuteR = width * 0.028; 
+  hourR = width * 0.036; 
 }
 
 function windowResized() {
@@ -140,12 +140,12 @@ function draw() {
   text(nf(second(), 2), (width * 5) / 6, height / 2);
   pop();
 
-  // 공 렌더링 함수 (내부 drawDistortedBall 호출)
+  // 공 렌더링 함수 
   secondBalls.forEach((ball) => drawDistortedBall(ball, secondR, textColor));
   minuteBalls.forEach((ball) => drawDistortedBall(ball, minuteR, textColor));
   hourBalls.forEach((ball) => drawDistortedBall(ball, hourR, textColor));
 
-  // 공 개수 업데이트 로직
+ 
   updateBallCount();
 }
 
@@ -153,7 +153,7 @@ function drawDistortedBall(ball, r, color) {
   let x = ball.position.x;
   let y = ball.position.y;
 
-  // 화면 밖에서 캡처하지 않도록 제한
+ 
   let imgX = constrain(x - r, 0, width - r * 2);
   let imgY = constrain(y - r, 0, height - r * 2);
 
