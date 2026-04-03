@@ -83,9 +83,9 @@ function windowResized() {
 }
 
 function createWalls() {
-  // 외곽 벽 두께 (화면 너비의 10%, 최소 100px 보장)
+  // 외곽 벽 두께 
   const outerThickness = max(width * 0.1, 100);
-  // 내부 칸막이 두께 (화면 너비의 3%, 최소 20px 보장)
+  // 내부 칸막이 두께 
   const innerThickness = max(width * 0.06, 20);
 
   walls = [
