@@ -83,9 +83,9 @@ function windowResized() {
 }
 
 function createWalls() {
-  // 외곽 벽 두께 
+  // 외곽 벽 두께
   const outerThickness = max(width * 0.1, 100);
-  // 내부 칸막이 두께 
+  // 내부 칸막이 두께
   const innerThickness = max(width * 0.06, 20);
 
   walls = [
@@ -102,7 +102,7 @@ function createWalls() {
       -outerThickness / 2,
       height * 0.5,
       outerThickness * 1.4,
-      height,
+      height * 2,
       { isStatic: true },
     ),
     // 오른쪽 벽
@@ -110,7 +110,7 @@ function createWalls() {
       width + outerThickness / 2,
       height * 0.5,
       outerThickness * 1.4,
-      height,
+      height * 2,
       { isStatic: true },
     ),
 
