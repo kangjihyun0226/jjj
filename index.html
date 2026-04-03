@@ -8,21 +8,71 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.10/p5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.20.0/matter.min.js"></script>
     <script src="./sketch/main.js" defer></script>
-    <title>clock</title>
+    <title>강지현</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fjalla+One&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap"
       rel="stylesheet"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Bitcount+Single:wght@100..900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Bitcount+Single:wght@100..900&display=swap"
       rel="stylesheet"
     />
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Bitcount+Single:wght@100..900&display=swap" rel="stylesheet">
-
   </head>
   <body>
-    <div class="canvas-container"></div>
+    <!-- <header class="overlay-header" id="header">
+      <div class="header-top">
+        <div class="header-left">
+          <a href="../../index.html"><span>마법연구회</span></a>
+        </div>
+
+        <div class="header-center" onclick="toggleInfo()">
+          <span id="arrow-icon">▼</span>
+        </div>
+
+        <div class="header-right">
+          <div class="work-info">
+            <strong>중력시계 (2026)</strong>
+            <span>강지현</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-details" id="details">
+        <p>
+          시간의 흐름을 중력의 움직임으로 시각화한 이 작품은 1초가 지날 때마다
+          초 공이 떨어지고 1분이 지나면 분 공이, 1시간이 흐르면 시 공이 차례로
+          낙하하도록 구성되어 있다. 배경의 디지털 시계는 볼록 렌즈나 물방울을
+          통해 사물을 바라볼 때처럼 형태가 왜곡되어 보여 유기적인 생동감을
+          더한다. 하루의 끝인 24:00:00이 되는 순간에는 어떤 장면이 펼쳐질까?
+        </p>
+      </div>
+    </header>
+
+    <main class="canvas-container"></main>
+
+    <script>
+      function toggleInfo() {
+        const header = document.getElementById("header");
+        const arrow = document.getElementById("arrow-icon");
+
+        header.classList.toggle("is-open");
+
+        if (header.classList.contains("is-open")) {
+          arrow.innerText = "▲";
+        } else {
+          arrow.innerText = "▼";
+        }
+      }
+    </script>
+
+    <a href="./index.html" class="nav-arrow left-arrow">
+      <span>◀</span>
+    </a>
+
+    <a href="./index.html" class="nav-arrow right-arrow">
+      <span>▶</span>
+    </a> -->
   </body>
 </html>

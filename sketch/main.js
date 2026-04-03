@@ -1,10 +1,3 @@
-// 기본설정
-const canvasContainer = document.querySelector(".canvas-container");
-
-// const INITIAL_W = 400;
-// const INITIAL_H = 400;
-// const INITIAL_RATIO = INITIAL_W / INITIAL_H;
-
 const {
   Engine,
   Runner,
@@ -13,246 +6,191 @@ const {
   Mouse,
   Composite,
   Bodies,
+  Body,
 } = Matter;
 
-let stack;
-let walls;
 let engine;
 let world;
+let walls = [];
 let secondBalls = [];
-let secondR = 42;
 let minuteBalls = [];
-let minuteR = 42;
 let hourBalls = [];
-let hourR = 68;
+
+// 반지름 비율 설정 (화면 너비 기준)
+let secondR, minuteR, hourR;
+let prevWidth;
 
 function setup() {
-  const { width: containerWidth, height: containerHeight } =
-    canvasContainer.getBoundingClientRect();
-
-  const renderer = createCanvas(containerWidth, containerHeight);
-  renderer.parent(canvasContainer);
-  // renderer.elt.style.aspectRatio = '${width}';
-  // renderer.elt.style.width = `${containerWidth}px`;
-  // renderer.elt.style.height = `${containerWidth / INITIAL_RATIO}px`;
+  createCanvas(windowWidth, windowHeight);
+  prevWidth = width;
+  calculateRadii();
 
   engine = Engine.create();
   world = engine.world;
 
-  walls = [
-    // 밑 벽
-    Bodies.rectangle(0.5 * width, height, width, 100, { isStatic: true }),
-    // 왼 벽
-    Bodies.rectangle(0, 0.5 * height, 100, height, { isStatic: true }),
-    // 오른 벽
-    Bodies.rectangle(width, 0.5 * height, 100, height, { isStatic: true }),
-    // 중앙오른
-    Bodies.rectangle(width * 0.33, 0.5 * height, 100, height * 2, {
-      isStatic: true,
-    }),
-    // 중앙 왼쪽
-    Bodies.rectangle(width * 0.66, 0.5 * height, 100, height * 2, {
-      isStatic: true,
-    }),
-  ];
+  createWalls();
 
-  // 생성된 벽들 추가
-  Composite.add(world, walls);
-
-  const mouse = Mouse.create(renderer.elt);
+  const mouse = Mouse.create(canvas.elt);
   mouse.pixelRatio = pixelDensity();
 
-  // 마우스로 드래그
   const mouseConstraint = MouseConstraint.create(engine, {
     mouse,
-    constraint: {
-      stiffness: 0.1,
-    },
+    constraint: { stiffness: 0.1 },
   });
 
-  // 마우스 추가
   Composite.add(world, mouseConstraint);
 
-  // 엔진 실행
   const runner = Runner.create();
   Runner.run(runner, engine);
 
-  // help..
-  // 현재 시각에 맞춰 초기 공 생성
-  const currentSecond = second();
-  const currentMinute = minute();
-  const currentHour = hour();
-
-  // 초 공 생성
-  for (let i = 0; i < currentSecond; i++) {
-    dropSBall();
-  }
-  // 분 공 생성
-  for (let i = 0; i < currentMinute; i++) {
-    dropMBall();
-  }
-  // 시 공 생성
-  for (let i = 0; i < currentHour; i++) {
-    dropHBall();
-  }
+  // 초기 공 생성
+  for (let i = 0; i < second(); i++) dropSBall();
+  for (let i = 0; i < minute(); i++) dropMBall();
+  for (let i = 0; i < hour(); i++) dropHBall();
 }
 
-// 초 공을 떨어뜨리는 함수
+// 화면 크기에 따른 반지름 계산 함수
+function calculateRadii() {
+  secondR = width * 0.02; // 화면 너비의 3%
+  minuteR = width * 0.028; // 화면 너비의 3.5%
+  hourR = width * 0.036; // 화면 너비의 5%
+}
+
+function windowResized() {
+  const scaleFactor = windowWidth / prevWidth; // 변화 비율 계산
+  resizeCanvas(windowWidth, windowHeight);
+
+  // 1. 벽 재생성
+  Composite.remove(world, walls);
+  createWalls();
+
+  // 2. 반지름 재계산
+  calculateRadii();
+
+  // 3. 기존 공들의 크기와 위치를 비율에 맞춰 조정
+  const allBalls = [...secondBalls, ...minuteBalls, ...hourBalls];
+  allBalls.forEach((ball) => {
+    // 물리적 크기 스케일 조정
+    Body.scale(ball, scaleFactor, scaleFactor);
+    // 위치도 화면 비율에 맞게 이동
+    Body.setPosition(ball, {
+      x: ball.position.x * scaleFactor,
+      y: ball.position.y * scaleFactor,
+    });
+  });
+
+  prevWidth = windowWidth;
+}
+
+function createWalls() {
+  walls = [
+    Bodies.rectangle(width * 0.5, height + 50, width, 200, { isStatic: true }),
+    Bodies.rectangle(-50, height * 0.5, 200, height, { isStatic: true }),
+    Bodies.rectangle(width + 50, height * 0.5, 200, height, { isStatic: true }),
+    Bodies.rectangle(width * 0.33, height * 0.5, width * 0.05, height * 2, {
+      isStatic: true,
+    }),
+    Bodies.rectangle(width * 0.66, height * 0.5, width * 0.05, height * 2, {
+      isStatic: true,
+    }),
+  ];
+  Composite.add(world, walls);
+}
+
 function dropSBall() {
-  const sBall = Bodies.circle(width * 0.8, 0, secondR);
+  const sBall = Bodies.circle(width * 0.8, -50, secondR);
   secondBalls.push(sBall);
   Composite.add(world, sBall);
 }
 
-// 분 공을 떨어뜨리는 함수
 function dropMBall() {
-  const mBall = Bodies.circle(width * 0.5, 0, minuteR);
+  const mBall = Bodies.circle(width * 0.5, -50, minuteR);
   minuteBalls.push(mBall);
   Composite.add(world, mBall);
 }
 
-// 시 공을 떨어뜨리는 함수
 function dropHBall() {
-  const hBall = Bodies.circle(width * 0.15, 0, hourR);
+  const hBall = Bodies.circle(width * 0.15, -50, hourR);
   hourBalls.push(hBall);
   Composite.add(world, hBall);
 }
-function draw() {
-  let bgColor;
-  let sColor;
-  let mColor;
-  let hColor;
-  const sr = minute();
 
-  if (sr % 2 === 0) {
-    bgColor = "#000000";
-    sColor = "#ffffff";
-    mColor = "#ffffff";
-    hColor = "#ffffff";
-  } else {
-    bgColor = "#ffffff";
-    sColor = "#000000";
-    mColor = "#000000";
-    hColor = "#000000";
-  }
+function draw() {
+  const m = minute();
+  const isEven = m % 2 === 0;
+
+  const bgColor = isEven ? "#000000" : "#ffffff";
+  const textColor = isEven ? "#ffffff" : "#000000";
 
   background(bgColor);
 
-  const h = hour();
-  const m = minute();
-  const s = second();
+  // 텍스트 렌더링
   push();
-  // const displayTimeH = nf(h, 2);
-  // const displayTime1 = " : ";
-  // const displayTimeM = nf(m, 2);
-  // const displayTime2 = " : ";
-  // const displayTimeS = nf(s, 2);
   textAlign(CENTER, CENTER);
   textFont("Barlow Condensed");
   textStyle(BOLD);
-  textSize(width * 0.26); // 화면 너비에 비례한 크기
-
-  if (sr % 2 === 0) {
-    fill(255, );
-  } else {
-    fill(0, );
-  }
+  textSize(width * 0.2); // 텍스트 크기도 화면 비례
+  fill(textColor);
   noStroke();
 
-  // 화면 정중앙에 출력
-  text(nf(s, 2), (width * 5) / 6, height / 2);
-  text(nf(h, 2), width / 6, height / 2);
-  text(" : ", width * 0.33, height / 2);
-  text(nf(m, 2), width / 2, height / 2);
-  text(" : ", width * 0.66, height / 2);
-
+  text(nf(hour(), 2), width / 6, height / 2);
+  text(":", width * 0.33, height / 2);
+  text(nf(minute(), 2), width / 2, height / 2);
+  text(":", width * 0.66, height / 2);
+  text(nf(second(), 2), (width * 5) / 6, height / 2);
   pop();
 
-  function drawDistortedBall(ball, r, color) {
-    let x = ball.position.x;
-    let y = ball.position.y;
+  // 공 렌더링 함수 (내부 drawDistortedBall 호출)
+  secondBalls.forEach((ball) => drawDistortedBall(ball, secondR, textColor));
+  minuteBalls.forEach((ball) => drawDistortedBall(ball, minuteR, textColor));
+  hourBalls.forEach((ball) => drawDistortedBall(ball, hourR, textColor));
 
-    let imgX = constrain(x - r, 0, width - r * 2);
-    let imgY = constrain(y - r, 0, height - r * 2);
+  // 공 개수 업데이트 로직
+  updateBallCount();
+}
 
-    //(공 크기만큼)
-    // get(x, y, w, h)이미지
-    let img = get(imgX, imgY, r * 2, r * 2);
+function drawDistortedBall(ball, r, color) {
+  let x = ball.position.x;
+  let y = ball.position.y;
 
-    push();
-    // 마스킹 효과
-    // 이미지 확대
-    beginClip();
-    circle(x, y, r * 2);
-    endClip();
+  // 화면 밖에서 캡처하지 않도록 제한
+  let imgX = constrain(x - r, 0, width - r * 2);
+  let imgY = constrain(y - r, 0, height - r * 2);
 
-    if (img) {
-      imageMode(CENTER);
-      //왜곡 효과
-      image(img, x, y, r * 3.6, r * 3.6);
-    }
-    pop();
-    //
-    push();
-    noFill();
-    drawingContext.shadowBlur = 15; // 번짐의 정도
-    drawingContext.shadowColor = color; // 번짐의 색상
-    stroke(color);
-    strokeWeight(2);
-    circle(x, y, r * 2);
+  let img = get(imgX, imgY, r * 2, r * 2);
 
-    pop();
+  push();
+  beginClip();
+  circle(x, y, r * 2);
+  endClip();
+
+  if (img) {
+    imageMode(CENTER);
+    image(img, x, y, r * 3.6, r * 3.6);
   }
+  pop();
 
-  // 공 렌더링
+  push();
+  noFill();
+  drawingContext.shadowBlur = 15;
+  drawingContext.shadowColor = color;
+  stroke(color);
+  strokeWeight(2);
+  circle(x, y, r * 2);
+  pop();
+}
 
-  secondBalls.forEach((ball) => drawDistortedBall(ball, secondR, sColor));
-  stroke(mColor);
-  minuteBalls.forEach((ball) => drawDistortedBall(ball, minuteR, mColor));
-  stroke(hColor);
-  hourBalls.forEach((ball) => drawDistortedBall(ball, hourR, hColor));
+function updateBallCount() {
+  const curS = second();
+  const curM = minute();
+  const curH = hour();
 
-  // 현재 시각 가져오기
-  const currentSecond = second();
-  const currentMinute = minute();
-  const currentHour = hour();
+  if (secondBalls.length < curS) dropSBall();
+  if (secondBalls.length > curS) Composite.remove(world, secondBalls.shift());
 
-  // 초 공
-  if (secondBalls.length < currentSecond) {
-    dropSBall();
-  } else if (secondBalls.length > currentSecond) {
-    // 0초로 넘어갈 때 모든 초 공 제거
-    const ballToRemove = secondBalls.shift();
-    Composite.remove(world, ballToRemove);
-  }
+  if (minuteBalls.length < curM) dropMBall();
+  if (minuteBalls.length > curM) Composite.remove(world, minuteBalls.shift());
 
-  // 분 공
-  if (minuteBalls.length < currentMinute) {
-    dropMBall();
-  } else if (minuteBalls.length > currentMinute) {
-    //0분으로 넘어갈 때 모든 분 공 제거
-    const ballToRemove = minuteBalls.shift();
-    Composite.remove(world, ballToRemove);
-  }
-
-  // 시 공
-  if (hourBalls.length < currentHour) {
-    dropHBall();
-  } else if (hourBalls.length > currentHour) {
-    // 12시 -> 1시로 넘어갈 때 시 공 제거
-    const ballToRemove = hourBalls.shift();
-    Composite.remove(world, ballToRemove);
-  }
-
-  noStroke();
-  noFill(); // 채우기 없음
-
-  // 벽 렌더링
-  walls.forEach((aBody) => {
-    beginShape();
-    aBody.vertices.forEach((aVertex) => {
-      vertex(aVertex.x, aVertex.y);
-    });
-    endShape(CLOSE);
-  });
+  if (hourBalls.length < curH) dropHBall();
+  if (hourBalls.length > curH) Composite.remove(world, hourBalls.shift());
 }
