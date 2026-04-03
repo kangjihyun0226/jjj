@@ -51,9 +51,9 @@ function setup() {
 
 // 화면 크기에 따른 반지름 계산 함수
 function calculateRadii() {
-  secondR = width * 0.02; 
-  minuteR = width * 0.028; 
-  hourR = width * 0.036; 
+  secondR = width * 0.02;
+  minuteR = width * 0.028;
+  hourR = width * 0.036;
 }
 
 function windowResized() {
@@ -83,17 +83,49 @@ function windowResized() {
 }
 
 function createWalls() {
+  // 외곽 벽 두께 (화면 너비의 10%, 최소 100px 보장)
+  const outerThickness = max(width * 0.1, 100);
+  // 내부 칸막이 두께 (화면 너비의 3%, 최소 20px 보장)
+  const innerThickness = max(width * 0.06, 20);
+
   walls = [
-    Bodies.rectangle(width * 0.5, height + 50, width, 200, { isStatic: true }),
-    Bodies.rectangle(-50, height * 0.5, 200, height, { isStatic: true }),
-    Bodies.rectangle(width + 50, height * 0.5, 200, height, { isStatic: true }),
-    Bodies.rectangle(width * 0.33, height * 0.5, width * 0.05, height * 2, {
+    // 바닥 (아래)
+    Bodies.rectangle(
+      width * 0.5,
+      height + outerThickness / 2,
+      width + outerThickness,
+      outerThickness * 1.4,
+      { isStatic: true },
+    ),
+    // 왼쪽 벽
+    Bodies.rectangle(
+      -outerThickness / 2,
+      height * 0.5,
+      outerThickness * 1.4,
+      height,
+      { isStatic: true },
+    ),
+    // 오른쪽 벽
+    Bodies.rectangle(
+      width + outerThickness / 2,
+      height * 0.5,
+      outerThickness * 1.4,
+      height,
+      { isStatic: true },
+    ),
+
+    // 첫 번째 칸막이
+    Bodies.rectangle(width * 0.33, height * 0.5, innerThickness, height * 2, {
       isStatic: true,
+      label: "partition",
     }),
-    Bodies.rectangle(width * 0.66, height * 0.5, width * 0.05, height * 2, {
+    // 두 번째 칸막이
+    Bodies.rectangle(width * 0.66, height * 0.5, innerThickness, height * 2, {
       isStatic: true,
+      label: "partition",
     }),
   ];
+
   Composite.add(world, walls);
 }
 
@@ -140,12 +172,11 @@ function draw() {
   text(nf(second(), 2), (width * 5) / 6, height / 2);
   pop();
 
-  // 공 렌더링 함수 
+  // 공 렌더링 함수
   secondBalls.forEach((ball) => drawDistortedBall(ball, secondR, textColor));
   minuteBalls.forEach((ball) => drawDistortedBall(ball, minuteR, textColor));
   hourBalls.forEach((ball) => drawDistortedBall(ball, hourR, textColor));
 
- 
   updateBallCount();
 }
 
@@ -153,7 +184,6 @@ function drawDistortedBall(ball, r, color) {
   let x = ball.position.x;
   let y = ball.position.y;
 
- 
   let imgX = constrain(x - r, 0, width - r * 2);
   let imgY = constrain(y - r, 0, height - r * 2);
 
